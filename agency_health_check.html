@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>60-Second Agency Health Check — Frisco.care</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --or1: #fb9b51;
+  --or2: #fd641f;
+  --bl1: #5c83c4;
+  --bl2: #2c599d;
+  --bl3: #1a3b70;
+  --grn: #22c55e;
+  --grn-dk: #16a34a;
+  --red: #ef4444;
+  --amb: #f59e0b;
+  --white: #ffffff;
+  --bg: #EEF3FB;
+  --card: #ffffff;
+  --border: #dde4f0;
+  --txt: #0f172a;
+  --mut: #64748b;
+  --lgray: #f1f5f9;
+  --shadow: 0 2px 14px rgba(28,59,112,0.09);
+  --shadow-lg: 0 8px 36px rgba(28,59,112,0.14);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--bl3);
+  padding: 0 28px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+.header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: var(--or2);
+}
+.logo-wrap { display: flex; flex-direction: column; gap: 1px; }
+.logo-text {
+  font-size: 21px; font-weight: 800; color: #fff;
+  letter-spacing: -0.5px; position: relative; display: inline-block;
+}
+.logo-dot {
+  width: 7px; height: 7px; background: var(--or2); border-radius: 50%;
+  position: absolute; top: -2px; left: 63px;
+}
+.logo-sub { font-size: 8px; font-weight: 300; color: var(--or1); letter-spacing: 0.05em; }
+.header-tag {
+  background: var(--or2); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 4px 14px; border-radius: 20px; letter-spacing: 0.04em;
+}
+
+/* ── Timer bar (top) ── */
+.timer-bar {
+  position: sticky; top: 60px; z-index: 90;
+  background: var(--bl3);
+  padding: 8px 28px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+}
+.timer-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 0.05em; white-space: nowrap; }
+.progress-track {
+  flex: 1; height: 6px; background: rgba(255,255,255,0.12); border-radius: 3px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--bl1), var(--or2));
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+.total-score-display {
+  font-size: 13px; font-weight: 700; color: #fff;
+  min-width: 48px; text-align: right;
+}
+.total-grade-pill {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.1); color: #fff;
+  transition: background 0.4s; min-width: 110px; text-align: center;
+  white-space: nowrap;
+}
+
+/* ── Main ── */
+.main { max-width: 780px; margin: 0 auto; padding: 32px 18px 0; }
+
+.hero { margin-bottom: 28px; }
+.hero h1 { font-size: 26px; font-weight: 800; color: var(--bl3); line-height: 1.2; margin-bottom: 8px; }
+.hero p { font-size: 13.5px; color: var(--mut); line-height: 1.65; max-width: 580px; }
+
+/* ── Pillar gauges ── */
+.pillars-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px; margin-bottom: 28px;
+}
+.pillar-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 16px 14px 14px;
+  text-align: center; box-shadow: var(--shadow);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.pillar-card.active { box-shadow: var(--shadow-lg); }
+.pillar-icon { font-size: 22px; margin-bottom: 6px; }
+.pillar-name { font-size: 11px; font-weight: 700; color: var(--bl3); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 10px; }
+
+/* SVG arc gauge */
+.gauge-wrap { position: relative; width: 80px; height: 50px; margin: 0 auto 8px; }
+.gauge-wrap svg { width: 80px; height: 50px; overflow: visible; }
+.gauge-bg { fill: none; stroke: #e8edf5; stroke-width: 8; stroke-linecap: round; }
+.gauge-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1), stroke 0.4s; }
+.gauge-num {
+  position: absolute; bottom: -2px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px; font-weight: 800; color: var(--bl3);
+  transition: color 0.4s;
+  line-height: 1;
+}
+.gauge-max { font-size: 10px; font-weight: 400; color: var(--mut); }
+.pillar-sub { font-size: 10px; color: var(--mut); line-height: 1.4; }
+
+/* ── Question sections ── */
+.q-section { margin-bottom: 20px; }
+.q-section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-radius: 8px 8px 0 0;
+}
+.q-section-icon { font-size: 15px; }
+.q-section-name { font-size: 11px; font-weight: 700; color: #fff; letter-spacing: 0.06em; text-transform: uppercase; }
+.q-section-score {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.12);
+  padding: 2px 9px; border-radius: 10px; white-space: nowrap;
+  transition: background 0.3s, color 0.3s;
+}
+.q-section-score.lit { background: rgba(255,255,255,0.88); color: var(--bl3); }
+
+.q-cards-wrap {
+  background: var(--card); border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 10px 10px;
+  overflow: hidden; box-shadow: var(--shadow);
+}
+
+/* ── Question card ── */
+.q-card {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+}
+.q-card:last-child { border-bottom: none; }
+.q-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.q-num {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; margin-top: 1px;
+}
+.q-text { font-size: 13px; font-weight: 500; color: var(--txt); line-height: 1.5; flex: 1; }
+
+/* Answer options */
+.options-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; margin-left: 34px;
+}
+.opt-btn {
+  border: 1.5px solid var(--border);
+  background: var(--lgray); border-radius: 8px;
+  padding: 8px 4px 6px;
+  cursor: pointer; text-align: center;
+  transition: all 0.18s; user-select: none;
+  position: relative; overflow: hidden;
+}
+.opt-btn:hover { border-color: var(--bl1); background: #f0f4fb; transform: translateY(-1px); }
+.opt-score {
+  display: block; font-size: 16px; font-weight: 800;
+  line-height: 1; margin-bottom: 3px;
+}
+.opt-label { display: block; font-size: 9px; font-weight: 500; color: var(--mut); line-height: 1.2; }
+
+/* Selected states */
+.opt-btn.sel-1 { background: #fef2f2; border-color: var(--red); }
+.opt-btn.sel-1 .opt-score { color: var(--red); }
+.opt-btn.sel-2 { background: #fffbeb; border-color: var(--amb); }
+.opt-btn.sel-2 .opt-score { color: var(--amb); }
+.opt-btn.sel-3 { background: #eff6ff; border-color: var(--bl1); }
+.opt-btn.sel-3 .opt-score { color: var(--bl1); }
+.opt-btn.sel-4 { background: #f0fdf4; border-color: var(--grn); }
+.opt-btn.sel-4 .opt-score { color: var(--grn); }
+.opt-btn.selected { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+/* ── Results section ── */
+.results-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; margin-top: 28px;
+  box-shadow: var(--shadow-lg);
+}
+.results-title { font-size: 14px; font-weight: 700; color: var(--bl3); margin-bottom: 16px; }
+
+.grade-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.grade-tile {
+  border-radius: 10px; padding: 14px 10px; text-align: center;
+  border: 2px solid transparent; transition: all 0.3s; opacity: 0.45;
+}
+.grade-tile.active { opacity: 1; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.grade-range { font-size: 17px; font-weight: 800; margin-bottom: 3px; }
+.grade-letter { font-size: 28px; font-weight: 800; margin-bottom: 3px; line-height: 1; }
+.grade-name { font-size: 10px; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 5px; }
+.grade-desc { font-size: 9.5px; line-height: 1.45; }
+
+.grade-tile.g-a { background: #f0fdf4; border-color: #86efac; }
+.grade-tile.g-a .grade-range, .grade-tile.g-a .grade-letter, .grade-tile.g-a .grade-name { color: var(--grn-dk); }
+.grade-tile.g-a .grade-desc { color: #166534; }
+
+.grade-tile.g-b { background: #eff6ff; border-color: #bfdbfe; }
+.grade-tile.g-b .grade-range, .grade-tile.g-b .grade-letter, .grade-tile.g-b .grade-name { color: var(--bl2); }
+.grade-tile.g-b .grade-desc { color: #1e40af; }
+
+.grade-tile.g-c { background: #fffbeb; border-color: #fde68a; }
+.grade-tile.g-c .grade-range, .grade-tile.g-c .grade-letter, .grade-tile.g-c .grade-name { color: #92400e; }
+.grade-tile.g-c .grade-desc { color: #78350f; }
+
+.grade-tile.g-d { background: #fef2f2; border-color: #fecaca; }
+.grade-tile.g-d .grade-range, .grade-tile.g-d .grade-letter, .grade-tile.g-d .grade-name { color: #991b1b; }
+.grade-tile.g-d .grade-desc { color: #7f1d1d; }
+
+/* ── CTA bar ── */
+.cta-bar {
+  background: var(--bl3); border-radius: 12px;
+  padding: 20px 24px; display: flex; align-items: center; gap: 18px;
+  margin-top: 20px;
+}
+.cta-copy { flex: 1; }
+.cta-copy strong { display: block; color: var(--or2); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.cta-copy span { color: rgba(255,255,255,0.72); font-size: 12px; line-height: 1.5; }
+.cta-btn {
+  background: var(--or2); color: #fff;
+  font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+  padding: 12px 22px; border-radius: 25px; border: none; cursor: pointer;
+  text-decoration: none; display: inline-block; white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(253,100,31,0.38);
+}
+.cta-btn:hover { background: #e5541a; transform: translateY(-1px); }
+
+.reset-btn {
+  display: block; margin: 14px auto 0; background: none;
+  border: 1px solid var(--border); color: var(--mut);
+  font-family: 'Poppins', sans-serif; font-size: 11px;
+  padding: 6px 16px; border-radius: 20px; cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-btn:hover { border-color: var(--bl1); color: var(--bl2); background: #f0f4fa; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--bl3); color: #fff;
+  padding: 11px 22px; border-radius: 30px;
+  font-size: 12px; font-weight: 600;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.22);
+  opacity: 0; transition: opacity 0.3s, transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none; z-index: 200; white-space: nowrap;
+  border-left: 4px solid var(--or2);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 600px) {
+  .pillars-row { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .grade-grid { grid-template-columns: 1fr 1fr; }
+  .options-row { grid-template-columns: repeat(2, 1fr); }
+  .options-row .opt-btn:nth-child(1) { order: 1; }
+  .options-row .opt-btn:nth-child(2) { order: 2; }
+  .options-row .opt-btn:nth-child(3) { order: 3; }
+  .options-row .opt-btn:nth-child(4) { order: 4; }
+  .cta-bar { flex-direction: column; text-align: center; }
+  .main { padding: 20px 12px 0; }
+  .hero h1 { font-size: 20px; }
+  .timer-bar { padding: 8px 14px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-wrap">
+    <div class="logo-text">frisco<span class="logo-dot"></span></div>
+    <div class="logo-sub">Smart Care Technology — Simplified</div>
+  </div>
+  <div class="header-tag">60-SEC DIAGNOSTIC</div>
+</header>
+
+<div class="timer-bar">
+  <span class="timer-label">YOUR SCORE</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="total-score-display" id="totalDisplay">0 / 20</span>
+  <span class="total-grade-pill" id="totalGrade">Answer below</span>
+</div>
+
+<main class="main">
+
+  <div class="hero">
+    <h1>60-Second Agency Health Check</h1>
+    <p>Rate your agency on 5 questions across 3 pillars. Each answer scores 1–4. Your total out of 20 reveals exactly where you stand — and what to fix first.</p>
+  </div>
+
+  <!-- Pillar Gauges -->
+  <div class="pillars-row">
+    <div class="pillar-card" id="pillar-efficiency">
+      <div class="pillar-icon">⚡</div>
+      <div class="pillar-name">Efficiency</div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 80 50">
+          <path class="gauge-bg" d="M10,45 A30,30 0 0,1 70,45" />
+          <path class="gauge-fill" id="gauge-efficiency" d="M10,45 A30,30 0 0,1 70,45"
+            stroke="#2c599d"
+            stroke-dasharray="94.25"
+            stroke-dashoffset="94.25" />
+        </svg>
+        <div class="gauge-num"><span id="score-efficiency">0</span><span class="gauge-max">/8</span></div>
+      </div>
+      <div class="pillar-sub">Q1 + Q2</div>
+    </div>
+    <div class="pillar-card" id="pillar-accuracy">
+      <div class="pillar-icon">🎯</div>
+      <div class="pillar-name">Accuracy</div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 80 50">
+          <path class="gauge-bg" d="M10,45 A30,30 0 0,1 70,45" />
+          <path class="gauge-fill" id="gauge-accuracy" d="M10,45 A30,30 0 0,1 70,45"
+            stroke="#fd641f"
+            stroke-dasharray="94.25"
+            stroke-dashoffset="94.25" />
+        </svg>
+        <div class="gauge-num"><span id="score-accuracy">0</span><span class="gauge-max">/8</span></div>
+      </div>
+      <div class="pillar-sub">Q3 + Q4</div>
+    </div>
+    <div class="pillar-card" id="pillar-scalability">
+      <div class="pillar-icon">📈</div>
+      <div class="pillar-name">Scalability</div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 80 50">
+          <path class="gauge-bg" d="M10,45 A30,30 0 0,1 70,45" />
+          <path class="gauge-fill" id="gauge-scalability" d="M10,45 A30,30 0 0,1 70,45"
+            stroke="#22c55e"
+            stroke-dasharray="94.25"
+            stroke-dashoffset="94.25" />
+        </svg>
+        <div class="gauge-num"><span id="score-scalability">0</span><span class="gauge-max">/4</span></div>
+      </div>
+      <div class="pillar-sub">Q5 × 1</div>
+    </div>
+  </div>
+
+  <!-- Questions -->
+  <div id="questionsWrap"></div>
+
+  <!-- Results -->
+  <div class="results-section">
+    <div class="results-title">Score Guide — Where Do You Land?</div>
+    <div class="grade-grid">
+      <div class="grade-tile g-a" id="grade-a">
+        <div class="grade-range">17–20</div>
+        <div class="grade-letter">A</div>
+        <div class="grade-name">Peak Performance</div>
+        <div class="grade-desc">Your agency is firing on all cylinders. Let's talk about optimizing further.</div>
+      </div>
+      <div class="grade-tile g-b" id="grade-b">
+        <div class="grade-range">12–16</div>
+        <div class="grade-letter">B</div>
+        <div class="grade-name">Room to Optimize</div>
+        <div class="grade-desc">Solid foundation with specific gaps worth addressing before they compound.</div>
+      </div>
+      <div class="grade-tile g-c" id="grade-c">
+        <div class="grade-range">7–11</div>
+        <div class="grade-letter">C</div>
+        <div class="grade-name">Friction is Costly</div>
+        <div class="grade-desc">These gaps are costing you in denials, turnover, and admin hours every month.</div>
+      </div>
+      <div class="grade-tile g-d" id="grade-d">
+        <div class="grade-range">5–6</div>
+        <div class="grade-letter">D</div>
+        <div class="grade-name">Running on Fumes</div>
+        <div class="grade-desc">Urgent attention needed. This level of friction has compounding revenue impact.</div>
+      </div>
+    </div>
+
+    <div class="cta-bar" id="ctaBar">
+      <div class="cta-copy">
+        <strong id="ctaHeadline">Book a Free Score Review</strong>
+        <span id="ctaBody">Share your score with a Frisco specialist — get a no-pressure 30-min operational diagnosis.</span>
+      </div>
+      <a href="https://calendly.com/luisa-frisco/30min" target="_blank" class="cta-btn">Book My Review →</a>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">↺ Start over</button>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ARC_LEN = 94.25; // half-circle arc length for r=30
+
+const QUESTIONS = [
+  {
+    pillar: "efficiency",
+    text: "How quickly can your billing team close a monthly claims cycle without corrections?",
+    opts: ["4+ weeks of back-and-forth", "2–3 weeks of corrections", "About 1 week", "Clean in 3 days or less"]
+  },
+  {
+    pillar: "efficiency",
+    text: "How much of your coordinator's day is spent chasing missing or incomplete DSP notes?",
+    opts: ["2+ hours every day", "About 1 hour daily", "Around 30 minutes", "Rarely — notes come in complete"]
+  },
+  {
+    pillar: "accuracy",
+    text: "How often do your EVV records match billed service times without manual corrections?",
+    opts: ["Rarely — lots of mismatches", "Sometimes — we fix several monthly", "Usually — minor exceptions only", "Always — EVV flows clean to billing"]
+  },
+  {
+    pillar: "accuracy",
+    text: "If audited today, how ready are your client documentation files?",
+    opts: ["We'd scramble for days", "Some gaps — we'd need prep time", "Mostly ready — minor cleanup", "Audit-ready right now"]
+  },
+  {
+    pillar: "scalability",
+    text: "When you onboard a new DSP, how long before they're documenting independently and correctly?",
+    opts: ["2+ months of hand-holding", "4–6 weeks", "1–2 weeks", "Under a week — system guides them"]
+  }
+];
+
+const SECTIONS = [
+  { name: "Efficiency", icon: "⚡", color: "#2c599d", qs: [0, 1] },
+  { name: "Accuracy",   icon: "🎯", color: "#fd641f", qs: [2, 3] },
+  { name: "Scalability", icon: "📈", color: "#22c55e", qs: [4]   }
+];
+
+const answers = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+let toastTimer;
+
+function buildUI() {
+  const wrap = document.getElementById('questionsWrap');
+  SECTIONS.forEach(sec => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'q-section';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'q-section-header';
+    hdr.style.background = sec.color;
+    const qCount = sec.qs.length;
+    hdr.innerHTML = `
+      <span class="q-section-icon">${sec.icon}</span>
+      <span class="q-section-name">${sec.name}</span>
+      <span class="q-section-score" id="sec-score-${sec.name.toLowerCase()}">0 / ${qCount * 4} pts</span>
+    `;
+    secDiv.appendChild(hdr);
+
+    const cardsWrap = document.createElement('div');
+    cardsWrap.className = 'q-cards-wrap';
+
+    sec.qs.forEach(qi => {
+      const q = QUESTIONS[qi];
+      const card = document.createElement('div');
+      card.className = 'q-card';
+
+      const optsBtns = q.opts.map((opt, oi) => {
+        const score = oi + 1;
+        const colors = ['#ef4444','#f59e0b','#5c83c4','#22c55e'];
+        return `
+          <div class="opt-btn" id="opt-${qi}-${score}" onclick="selectAnswer(${qi}, ${score})" role="button" tabindex="0">
+            <span class="opt-score" style="color:${colors[oi]}">${score}</span>
+            <span class="opt-label">${opt}</span>
+          </div>`;
+      }).join('');
+
+      card.innerHTML = `
+        <div class="q-top">
+          <div class="q-num" style="background:${sec.color}">Q${qi + 1}</div>
+          <div class="q-text">${q.text}</div>
+        </div>
+        <div class="options-row">${optsBtns}</div>
+      `;
+      cardsWrap.appendChild(card);
+    });
+
+    secDiv.appendChild(cardsWrap);
+    wrap.appendChild(secDiv);
+  });
+}
+
+function selectAnswer(qi, score) {
+  // Clear previous selection for this question
+  for (let s = 1; s <= 4; s++) {
+    const el = document.getElementById(`opt-${qi}-${s}`);
+    if (el) { el.className = 'opt-btn'; }
+  }
+  // Set new selection
+  answers[qi] = score;
+  const sel = document.getElementById(`opt-${qi}-${score}`);
+  if (sel) sel.className = `opt-btn sel-${score} selected`;
+
+  updateAll();
+  showToast(getToast(score));
+}
+
+function updateAll() {
+  const total = Object.values(answers).reduce((a, b) => a + b, 0);
+  const answered = Object.values(answers).filter(v => v > 0).length;
+  const maxTotal = 20;
+
+  // Progress bar
+  document.getElementById('progressFill').style.width = (total / maxTotal * 100) + '%';
+  document.getElementById('totalDisplay').textContent = `${total} / ${maxTotal}`;
+
+  // Grade pill
+  const gradeEl = document.getElementById('totalGrade');
+  if (answered === 0) {
+    gradeEl.textContent = 'Answer below';
+    gradeEl.style.background = 'rgba(255,255,255,0.1)';
+  } else if (total >= 17) {
+    gradeEl.textContent = 'A — Peak Performance';
+    gradeEl.style.background = '#16a34a';
+  } else if (total >= 12) {
+    gradeEl.textContent = 'B — Room to Optimize';
+    gradeEl.style.background = '#2c599d';
+  } else if (total >= 7) {
+    gradeEl.textContent = 'C — Friction is Costly';
+    gradeEl.style.background = '#f59e0b';
+  } else if (answered > 0) {
+    gradeEl.textContent = 'D — Running on Fumes';
+    gradeEl.style.background = '#ef4444';
+  }
+
+  // Pillar scores
+  const eff = (answers[0] || 0) + (answers[1] || 0);
+  const acc = (answers[2] || 0) + (answers[3] || 0);
+  const sca = (answers[4] || 0);
+
+  updateGauge('efficiency', eff, 8);
+  updateGauge('accuracy', acc, 8);
+  updateGauge('scalability', sca, 4);
+
+  document.getElementById('score-efficiency').textContent = eff;
+  document.getElementById('score-accuracy').textContent = acc;
+  document.getElementById('score-scalability').textContent = sca;
+
+  // Section scores
+  document.getElementById('sec-score-efficiency').textContent = `${eff} / 8 pts`;
+  document.getElementById('sec-score-accuracy').textContent = `${acc} / 8 pts`;
+  document.getElementById('sec-score-scalability').textContent = `${sca} / 4 pts`;
+
+  // Light up section scores
+  ['efficiency','accuracy','scalability'].forEach(p => {
+    const el = document.getElementById(`sec-score-${p}`);
+    const val = p === 'efficiency' ? eff : p === 'accuracy' ? acc : sca;
+    if (el) el.classList.toggle('lit', val > 0);
+  });
+
+  // Grade cards
+  document.getElementById('grade-a').classList.toggle('active', total >= 17 && answered > 0);
+  document.getElementById('grade-b').classList.toggle('active', total >= 12 && total <= 16);
+  document.getElementById('grade-c').classList.toggle('active', total >= 7 && total <= 11);
+  document.getElementById('grade-d').classList.toggle('active', total <= 6 && answered > 0);
+
+  // CTA
+  const headline = document.getElementById('ctaHeadline');
+  const body = document.getElementById('ctaBody');
+  if (answered === 0) {
+    headline.textContent = 'Book a Free Score Review';
+    body.textContent = 'Share your score with a Frisco specialist — get a no-pressure 30-min operational diagnosis.';
+  } else if (total >= 17) {
+    headline.textContent = `Score ${total}/20 — You're running strong. Let's keep it that way.`;
+    body.textContent = "Top-performing agencies use this call to find the 1–2 optimizations that push results even further.";
+  } else if (total >= 12) {
+    headline.textContent = `Score ${total}/20 — Solid foundation. Specific gaps worth closing.`;
+    body.textContent = "Book a 30-min review and we'll pinpoint exactly which pillar is costing you most before it compounds.";
+  } else if (total >= 7) {
+    headline.textContent = `Score ${total}/20 — Friction is costing you monthly. Let's fix it.`;
+    body.textContent = "At this score, most agencies find $40K–$100K in preventable annual leakage. Book a free call to see yours.";
+  } else {
+    headline.textContent = `Score ${total}/20 — Urgent. Book a call today.`;
+    body.textContent = "This score level typically means $80K–$180K in annual exposure. A 30-min call is the fastest path to a plan.";
+  }
+}
+
+function updateGauge(pillar, score, max) {
+  const el = document.getElementById(`gauge-${pillar}`);
+  if (!el) return;
+  const pct = score / max;
+  const offset = ARC_LEN * (1 - pct);
+  el.style.strokeDashoffset = offset;
+
+  // Color based on score %
+  if (pct >= 0.75) el.style.stroke = '#22c55e';
+  else if (pct >= 0.5) el.style.stroke = '#2c599d';
+  else if (pct >= 0.25) el.style.stroke = '#f59e0b';
+  else el.style.stroke = '#ef4444';
+}
+
+const TOASTS = [
+  v => v >= 3 ? "Nice — strong score on that one" : "That one's a common gap in this industry",
+  v => v === 4 ? "Firing on all cylinders there!" : v >= 3 ? "Good — one level of improvement possible" : "That friction adds up fast",
+  v => v >= 3 ? "Clean EVV = clean revenue. Well done." : "EVV mismatches are the #1 source of billing leakage",
+  v => v === 4 ? "Audit-ready is the goal — you're there!" : "Audit prep time is a hidden cost most miss",
+  v => v >= 3 ? "Fast onboarding = lower turnover cost" : "DSP ramp time directly impacts retention rates",
+];
+let toastQ = -1;
+
+function getToast(score) {
+  const qi = Object.entries(answers).findIndex(([k, v]) => v === score && parseInt(k) !== toastQ);
+  const lastQ = Object.entries(answers).reduce((last, [k, v]) => v > 0 ? parseInt(k) : last, -1);
+  toastQ = lastQ;
+  const fn = TOASTS[lastQ];
+  return fn ? fn(score) : "Score updated";
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function resetAll() {
+  Object.keys(answers).forEach(k => answers[k] = 0);
+  for (let qi = 0; qi < 5; qi++) {
+    for (let s = 1; s <= 4; s++) {
+      const el = document.getElementById(`opt-${qi}-${s}`);
+      if (el) el.className = 'opt-btn';
+    }
+  }
+  updateAll();
+  showToast('Scores cleared — start fresh');
+}
+
+buildUI();
+updateAll();
+</script>
+</body>
+</html>
